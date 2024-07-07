@@ -2,36 +2,30 @@ import './index.css';
 import './tailwind.css';
 import Chat from './Views/Chat';
 import Login from './Views/Login';
+import Footer from './Components/Footer';
 import { useState } from 'react';
 
 function App() {
 
   const [loggedIn, setLoggedIn] = useState(false)
+  const [username, setUsername] = useState("")
 
   if (loggedIn) {
     return (
       <div>
-        <Chat update={setLoggedIn}/>
+        <Chat update={setLoggedIn} username={username}/>
       </div>
     );
   } else {
     return (
       <div>
-        <Login update={setLoggedIn}/>
+        <div className="bg-gray-800 h-screen flex flex-col items-center">
+          <Login update={setLoggedIn} setUsername={setUsername}/>
+        </div>
+        <Footer/>
       </div>
     );
   }
-  // return (
-  //   <div>
-  //     <Router>
-  //       <Routes>
-  //         <Route exact path="/" element={<Login/>}></Route>
-  //         <Route exact path="/chat/" element={<Login/>}></Route>
-  //         <Route path="/chat/home" element={<Chat/>}></Route>
-  //       </Routes>
-  //     </Router>
-  //   </div>
-  // );
 }
 
 export default App;
