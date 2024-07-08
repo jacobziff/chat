@@ -1,7 +1,6 @@
 import { useState } from "react";
 
 function checkName(name, setTried, update, setUsername) {
-    console.log(name)
     document.getElementById('userfield').value = "";
     setTried(true)
     let l = name.length

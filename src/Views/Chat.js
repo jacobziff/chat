@@ -1,17 +1,16 @@
 import firebase from 'firebase/compat/app';
 import 'firebase/compat/auth';
 import 'firebase/compat/firestore';
-
-import { useAuthState } from 'react-firebase-hooks/auth'
 import { useCollectionData } from 'react-firebase-hooks/firestore'
 import { initializeApp } from "firebase/app";
 import { getAnalytics } from "firebase/analytics";
 import { getFirestore } from "firebase/firestore";
-import { collection, query, where, doc, setDoc, getDocs, getDoc } from "firebase/firestore";
 import { useState } from 'react';
-import { useEffect } from 'react';
-
-import ChatMessage from '../Components/ChatMessage';
+import { useMediaQuery } from 'react-responsive';
+import Header from '../Components/Header';
+import Menu from '../Components/Menu';
+import Messages from '../Components/Messages';
+import Footer from '../Components/Footer';
 
 const firebaseConfig = {
     apiKey: "AIzaSyBTsJD7yoq8q4s8Yjwh0Aj2T0nHVM0JmRU",
@@ -36,29 +35,48 @@ function Chat(props) {
     const query = messagesRef.orderBy('createdAt').limit(25);
     const [messages] = useCollectionData(query, {idField : 'id'})
 
-    // let [messages, setMessages] = useState([])
-    // const messagesRef = collection(db, 'messages');
-    // const q = query(messagesRef);
-    // useEffect(() => {
-    //     getDocs(q).then(response => {
-    //         response.forEach((msg) => {
-    //             if (!(hash.has(msg.id))) {
-    //                 hash.add(msg.id)
-    //                 setMessages(messages.concat(msg))
-    //             }
-    //         })
-    //     })
-    // })
+    let isMobile = useMediaQuery({ query: `(max-width: 600px)` });
+    let [showMenu, setShowMenu] = useState(!isMobile)
+    let [channel, setChannel] = useState("#General")
+    const globalList = ["#General", "#Random"]
+    let [DMList, setDMList] = useState(["User1", "User2", "User3"])
+    let emojis = ['😀', '😃', '😄', '😁,', '😆', '🤩', '😅', '😂', '🤣', '😊', '😇', '🙂', '🙃', '😉', '😌', '😍', '😘', '😗', '😙', '😚', '😋', '🤪', '😜', '😝', '😛', '🤑', '🤗', '🤓', '😎', '🤡', '🤠', '😏', '😒', '😞', '😔', '😟', '😕', '🙁', '😣', '😖', '😫', '😩', '😤', '😠', '😡', '🤬', '😶', '😐', '😑', '😯', '😦', '😧', '😮', '😲', '😵', '🤯', '😳', '😱', '😨', '😰', '😢', '😥', '🤤', '😭', '😓', '😪', '😴', '🥱', '🙄', '🤨', '🧐', '🤔', '🤫', '🤭', '🤥', '😬', '🤐', '🤢', '🤮', '🤧', '😷', '🤒', '🤕', '😈', '👿', '👹', '👺', '💩', '👻', '💀', '👽', '👾', '🤖', '🎃', '😺', '😸', '😹', '😻', '😼', '😽', '🙀', '😿', '😾', '👐', '🙌', '👏', '🙏', '🤲', '🤝', '👍', '👊', '✊', '🤛', '🤜', '🤞', '🤘', '🤏', '👌', '👈', '👉', '👆', '👇', '✋', '🤚', '🖐', '🖖', '👋', '🤙', '💪', '🤟', '🤳', '💅', '🖖', '💄', '💋', '👄', '👅', '👂', '🦻', '👃', '🦵', '🦶', '🦾', '🦿', '👣', '👁', '👀', '🗣', '👤', '👥', '👶', '👦', '👧', '🧒', '👨', '👩', '🧑', '👱‍♀️', '👱', '🧔', '👴', '👵', '🧓', '👲', '👳‍♀️', '👳', '🧕', '👮‍♀️', '👮', '👷‍♀️', '👷', '💂‍♀️', '💂', '🕵️‍♀️', '🕵️', '👩‍⚕️', '👨‍⚕️', '👩‍🌾', '👨‍🌾', '👩‍🍳', '👨‍🍳', '👩‍🎓', '👨‍🎓', '👩‍🎤', '👨‍🎤', '👩‍🏫', '👨‍🏫', '👩‍🏭', '👨‍🏭', '👩‍💻', '👨‍💻', '👩‍💼', '👨‍💼', '👩‍🔧', '👨‍🔧', '👩‍🔬', '👨‍🔬', '👩‍🎨', '👨‍🎨', '👩‍🚒', '👨‍🚒', '👩‍✈️', '👨‍✈️', '👩‍🚀', '👨‍🚀', '👩‍⚖️', '👨‍⚖️', '🤶', '🎅', '👸', '🤴', '👰', '🤵', '👼', '🤱', '🙇‍♀️', '🙇', '💁', '💁‍♂️', '🙅', '🙅‍♂️', '🙆', '🙆‍♂️', '🙋', '🙋‍♂️', '🤦‍♀️', '🤦‍♂️', '🤷‍♀️', '🤷‍♂️', '🙎', '🙎‍♂️', '🙍', '🙍‍♂️', '💇', '💇‍♂️', '💆', '💆‍♂️', '🧖‍♀️', '🧖‍♂️', '🧏', '🧏‍♂️', '🧏‍♀️', '🧙‍♀️', '🧙‍♂️', '🧛‍♀️', '🧛‍♂️', '🧟‍♀️', '🧟‍♂️', '🧚‍♀️', '🧚‍♂️', '🧜‍♀️', '🧜‍♂️', '🧝‍♀️', '🧝‍♂️', '🧞‍♀️', '🧞‍♂️', '🕴', '💃', '🕺', '👯', '👯‍♂️', '🚶‍♀️', '🚶', '🏃‍♀️', '🏃', '🧍', '🧍‍♂️', '🧍‍♀️', '🧎', '🧎‍♂️', '🧎‍♀️', '👨‍🦯', '👩‍🦯', '👨‍🦼', '👩‍🦼', '👨‍🦽', '👩‍🦽', '👚', '👕', '👖', '👔', '👗', '👘', '👠', '👡', '👢', '👞', '👟', '👒', '🎩', '🎓', '👑', '⛑', '🎒', '👝', '👛', '👜', '💼', '👓', '🕶', '🤿', '🌂', '🧣', '🧤', '🧥', '🦺', '🥻', '🩱', '🩲', '🩳', '🩰', '🧦', '🧢', '⛷', '🏂', '🏋️‍♀️', '🏋️', '🤺', '🤼‍♀️', '🤼‍♂️', '🤸‍♀️', '🤸‍♂️', '⛹️‍♀️', '⛹️', '🤾‍♀️', '🤾‍♂️', '🏌️‍♀️', '🏌️', '🏄‍♀️', '🏄', '🏊‍♀️', '🏊', '🤽‍♀️', '🤽‍♂️', '🚣‍♀️', '🚣', '🏇', '🚴‍♀️', '🚴', '🚵‍♀️', '🚵', '🤹‍♀️', '🤹‍♂️', '🧗‍♀️', '🧗‍♂️', '🧘‍♀️', '🧘‍♂️', '🥰', '🥵', '🥶', '🥳', '🥴', '🥺', '🦸', '🦹', '🧑‍🦰', '🧑‍🦱', '🧑‍🦳', '🧑‍🦲', '🧑‍⚕️', '🧑‍🎓', '🧑‍🏫', '🧑‍⚖️', '🧑‍🌾', '🧑‍🍳', '🧑‍🔧', '🧑‍🏭', '🧑‍💼', '🧑‍🔬', '🧑‍💻', '🧑‍🎤', '🧑‍🎨', '🧑‍✈️', '🧑‍🚀', '🧑‍🚒', '🧑‍🦯', '🧑‍🦼', '🧑‍🦽', '🦰', '🦱', '🦲', '🦳']
 
-    return (
-        <div>
-            <h1>Chat</h1>
-            <h2>Hello {props.username}</h2>
-            <button onClick={() => props.update(false)}>Log Out Button</button>
+    // return (
+    //     <div>
+    //         <Header update={props.update} menu={showMenu} togglemenu={setShowMenu}/>
+    //         <h2>Hello {props.username}</h2>
+    //         <div>
+    //             {messages && messages.map(msg => <ChatMessage key={msg.id} sentTo={msg.sentTo} sentBy={msg.sentBy} text={msg.text}/>)}
+    //         </div>
+    //     </div>
+    // );
+
+    if (showMenu) {
+        return (
             <div>
-                {messages && messages.map(msg => <ChatMessage key={msg.id} sentTo={msg.sentTo} sentBy={msg.sentBy} text={msg.text}/>)}
+                <Header update={props.update} menu={showMenu} togglemenu={setShowMenu}/>
+                <div id="withmenu" className="grid">
+                    <div className="bg-gray-900 h-screen border-r-2 border-gray-700 overflow-y-scroll">
+                        <Menu channel={channel} setChannel={setChannel} globalList={globalList} DMList={DMList} setDMList={setDMList} emojis={emojis}/>
+                    </div>
+                    <div className="bg-zinc-900 h-screen border-l-2 border-gray-700">
+                        <Messages channel={channel} emojis={emojis}/>
+                    </div>
+                </div>
+                <Footer/>
             </div>
-        </div>
-    );
+        );
+    } else {
+        return (
+            <div>
+                <Header update={props.update} menu={showMenu} togglemenu={setShowMenu}/>
+                <div className="bg-zinc-900 h-screen">
+                    <Messages channel={channel} emojis={emojis}/>
+                </div>
+                <Footer/>
+            </div>
+        );
+    }
 }
 export default Chat;
