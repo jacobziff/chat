@@ -8,7 +8,7 @@ import { useState } from 'react';
 function App() {
 
   const [loggedIn, setLoggedIn] = useState(false)
-  const [username, setUsername] = useState("")
+  const [username, setUsername] = useState("Test")
 
   if (!loggedIn) {
     return (

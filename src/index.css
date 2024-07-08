@@ -17,9 +17,13 @@ code {
 }
 
 #withmenu {
-  grid-template-columns: 250px 1fr;
+  grid-template-columns: 0.35fr 1fr;
 }
 
 * {
   overflow-y: hidden;
+}
+
+#messagesheadergrid {
+  grid-template-columns: 1fr 1fr;
 }

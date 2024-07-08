@@ -564,6 +564,15 @@ video {
 .gap-8 {
   gap: 2rem;
 }
+.overflow-x-scroll {
+  overflow-x: scroll;
+}
+.overflow-y-scroll {
+  overflow-y: scroll;
+}
+.whitespace-nowrap {
+  white-space: nowrap;
+}
 .rounded {
   border-radius: 0.25rem;
 }
@@ -638,6 +647,9 @@ video {
 .py-3 {
   padding-top: 0.75rem;
   padding-bottom: 0.75rem;
+}
+.pb-28 {
+  padding-bottom: 7rem;
 }
 .pb-3 {
   padding-bottom: 0.75rem;
@@ -728,9 +740,17 @@ code {
 }
 
 #withmenu {
-  grid-template-columns: 250px 1fr;
+  grid-template-columns: 0.35fr 1fr;
 }
 
 * {
   overflow-y: hidden;
+}
+
+#messagesheadergrid {
+  grid-template-columns: 1fr 1fr;
+}
+
+.messagebubble {
+  max-width: 45%;
 }
