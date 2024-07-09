@@ -1,7 +1,7 @@
 import firebase from 'firebase/compat/app';
 import 'firebase/compat/auth';
 import 'firebase/compat/firestore';
-import { useCollectionData } from 'react-firebase-hooks/firestore'
+import { useCollectionData, useCollection } from 'react-firebase-hooks/firestore'
 import { getAnalytics } from "firebase/analytics";
 import { useState } from 'react';
 import { useMediaQuery } from 'react-responsive';
@@ -11,7 +11,7 @@ import Messages from '../Components/Messages';
 import Footer from '../Components/Footer';
 import { useEffect } from 'react';
 import { collection } from 'firebase/firestore';
-import {getFirestore, query, where, orderBy, limit, or, and } from "firebase/firestore";  
+import {getFirestore, query, where, orderBy, limit, or, and, deleteDoc, doc } from "firebase/firestore";  
 import { data } from 'autoprefixer';
 
 // https://console.firebase.google.com/u/0/project/chat-j-z/firestore/databases/-default-/data/~2Fmessages~2F0QQR1P9vPof4xAzvHNI1
@@ -31,21 +31,37 @@ const db = getFirestore(app);
 const analytics = getAnalytics(app);
 const auth = firebase.auth();
 const firestore = firebase.firestore();
+const messagesRef = collection(firebase.firestore(), 'messages');
+
+async function deleteMessage(message) {
+    if (message.id) {
+        await deleteDoc(doc(db, 'messages', message.id))
+    }
+}
 
 function doDMList(messages, username, channel) {
     if (messages) {
         let dms = new Set()
         let result = []
+        let currTime = new Date().getTime() / 1000
         for (let i = messages.length - 1; i >= 0; --i) {
-            let recipient = messages[i].sentTo
-            let sender = messages[i].sentBy
-            if (recipient === username && !(dms.has(sender)) && sender[0] !== '#') {
-                dms.add(sender)
-                result.push(sender)
+            let messageTime = currTime
+            if (messages[i].createdAt) {
+                messageTime = messages[i].createdAt.seconds
             }
-            if (sender === username && !(dms.has(recipient)) && recipient[0] !== '#') {
-                dms.add(recipient)
-                result.push(recipient)
+            if (currTime - messageTime > 604800) {
+                deleteMessage(messages[i])
+            } else {
+                let recipient = messages[i].sentTo
+                let sender = messages[i].sentBy
+                if (recipient === username && !(dms.has(sender)) && sender[0] !== '#') {
+                    dms.add(sender)
+                    result.push(sender)
+                }
+                if (sender === username && !(dms.has(recipient)) && recipient[0] !== '#') {
+                    dms.add(recipient)
+                    result.push(recipient)
+                }
             }
         }
         if (channel[0] != '#' && !dms.has(channel)) {
@@ -62,7 +78,6 @@ function compareMessages(a, b) {
 function Chat(props) {
 
     const updateMessagesRef = firestore.collection('messages')
-    const messagesRef = collection(firebase.firestore(), 'messages');
     let [channel, setChannel] = useState("#General")
 
     let messageQuery = query(messagesRef, or(where("sentTo", "==", channel), 
@@ -70,7 +85,20 @@ function Chat(props) {
                                                 or(where("sentTo", "==", props.username), 
                                                     where("sentBy", "==", props.username)))));
 
-    let [messages] = useCollectionData(messageQuery, {idField : 'id'})
+    let [messages] = useCollectionData(messageQuery, {idField : 'documentID'})
+    let [snapshot] = useCollection(messageQuery)
+
+    if (snapshot) {
+        snapshot = snapshot._snapshot.docChanges
+        for (let i = 0; i < snapshot.length; ++i) {
+            let segs = snapshot[i].doc.key.path.segments
+            let id = segs[segs.length - 1]
+            messages[i] = {
+                ...messages[i],
+                id : id
+            }
+        }
+    }
     if (messages) {
         messages.sort((a, b) => compareMessages(a, b))
     }
@@ -83,7 +111,7 @@ function Chat(props) {
 
     useEffect(() => {
         setDMList(doDMList(messages, props.username, channel))
-    }, [messages])
+    }, [snapshot])
 
     if (showMenu) {
         if (isMobile) {
