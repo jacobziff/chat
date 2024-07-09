@@ -21,10 +21,6 @@ async function doSubmit(user, channel, messagesRef) {
         sentTo: channel,
         text: msg
     })
-    var objDiv = document.getElementById("messagebox");
-    if (objDiv) {
-        objDiv.scrollTop = objDiv.scrollHeight;
-    }
 }
 
 function MessagesFooter(props) {

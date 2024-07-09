@@ -1,12 +1,7 @@
-function sleep(ms) {
-    return new Promise(resolve => setTimeout(resolve, ms));
-}
-
-function doChannelChange(setChannel, name) {
+function doChannelChange(setChannel, name, setShowMenu, isMobile) {
     setChannel(name)
-    var objDiv = document.getElementById("messagebox");
-    if (objDiv) {
-        sleep(0).then(() => {objDiv.scrollTop = objDiv.scrollHeight})
+    if (isMobile) {
+        setShowMenu(false)
     }
 }
 
@@ -16,13 +11,13 @@ function Channel(props) {
     if (props.channel === props.name) {
         classes = "text-slate-200 font-bold text-left pl-1 mx-8 my-1 py-1 overflow-x-scroll whitespace-nowrap"
     }
-    let full = <h3 className={classes} onClick={() => doChannelChange(props.setChannel, props.name)}>{props.emoji} {name}</h3>;
+    let full = <h3 className={classes} onClick={() => doChannelChange(props.setChannel, props.name, props.setShowMenu, props.isMobile)}>{props.emoji} {name}</h3>;
     if (name[0] === '#') {
         name = "# ".concat(name.substring(1))
-        full = <h3 className={classes} onClick={() => doChannelChange(props.setChannel, props.name)}>{name}</h3>
+        full = <h3 className={classes} onClick={() => doChannelChange(props.setChannel, props.name, props.setShowMenu, props.isMobile)}>{name}</h3>
     }
     return (
-        <div onLoad={doChannelChange(props.setChannel, props.channel)}>
+        <div>
             {full}
         </div>
     );

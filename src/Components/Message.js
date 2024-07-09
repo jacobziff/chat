@@ -1,14 +1,15 @@
 function Message(props) {
     let msg = props.message
-    console.log(msg.sentBy, msg.sentTo, msg.text, props.channel)
-    if (!((props.channel === msg.sentTo && props.username === msg.sentBy) || (props.channel === msg.sentBy && props.username === msg.sentTo))) {
-        return (
-            <div>
-
-            </div>
-        );
-    }
-    if (false) {
+    // console.log(msg.sentBy, msg.sentTo, msg.text, props.channel)
+    if (props.channel[0] !== '#') {
+        if (!((props.channel === msg.sentTo && props.username === msg.sentBy) || (props.channel === msg.sentBy && props.username === msg.sentTo))) {
+            return (
+                <div>
+    
+                </div>
+            );
+        }
+    } else if (msg.sentTo !== props.channel) {
         return (
             <div>
 
@@ -59,7 +60,7 @@ function Message(props) {
                 <div className="px-3 py-2 mt-3 bg-gray-600 rounded-lg messagebubble">
                     <p className="text-slate-200">{msg.text}</p>
                 </div>
-                <p className="text-slate-200 text-sm mb-3">{props.emoji} {sentBy}{month} {day}, {hour}:{minute}</p>
+                <p className="text-slate-200 text-sm mb-3">{props.emoji}{sentBy}{month} {day}, {hour}:{minute}</p>
             </div>
         );
     }

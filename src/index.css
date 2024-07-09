@@ -31,8 +31,3 @@ code {
 .messagebubble {
   max-width: 45%;
 }
-
-#dminterface {
-  position: relative;
-  left: 37.5%
-}

@@ -2,9 +2,7 @@ import firebase from 'firebase/compat/app';
 import 'firebase/compat/auth';
 import 'firebase/compat/firestore';
 import { useCollectionData } from 'react-firebase-hooks/firestore'
-import { initializeApp } from "firebase/app";
 import { getAnalytics } from "firebase/analytics";
-import { getFirestore } from "firebase/firestore";
 import { useState } from 'react';
 import { useMediaQuery } from 'react-responsive';
 import Header from '../Components/Header';
@@ -12,7 +10,11 @@ import Menu from '../Components/Menu';
 import Messages from '../Components/Messages';
 import Footer from '../Components/Footer';
 import { useEffect } from 'react';
+import { collection } from 'firebase/firestore';
+import {getFirestore, query, where, orderBy, limit, or, and } from "firebase/firestore";  
+import { data } from 'autoprefixer';
 
+// https://console.firebase.google.com/u/0/project/chat-j-z/firestore/databases/-default-/data/~2Fmessages~2F0QQR1P9vPof4xAzvHNI1
 const firebaseConfig = {
     apiKey: "AIzaSyBTsJD7yoq8q4s8Yjwh0Aj2T0nHVM0JmRU",
     authDomain: "chat-j-z.firebaseapp.com",
@@ -50,23 +52,31 @@ function doDMList(messages, username) {
     }
 }
 
+function compareMessages(a, b) {
+    return (a.createdAt > b.createdAt);
+}
+
 function Chat(props) {
 
-    const messagesRef = firestore.collection('messages');
-    const query = messagesRef.orderBy('createdAt').limit(25);
-    const [messages] = useCollectionData(query, {idField : 'id'})
+    const updateMessagesRef = firestore.collection('messages')
+    const messagesRef = collection(firebase.firestore(), 'messages');
+    let [channel, setChannel] = useState("#General")
+
+    let messageQuery = query(messagesRef, or(where("sentTo", "==", channel), 
+                                            or(where("sentBy", "==", channel), 
+                                                or(where("sentTo", "==", props.username), 
+                                                    where("sentBy", "==", props.username)))));
+
+    let [messages] = useCollectionData(messageQuery, {idField : 'id'})
+    if (messages) {
+        messages.sort((a, b) => compareMessages(a, b))
+    }
 
     let isMobile = useMediaQuery({ query: `(max-width: 700px)` });
     let [showMenu, setShowMenu] = useState(!isMobile)
-    let [channel, setChannel] = useState("#General")
     const globalList = ["#General", "#Random", "#Suggestions"]
     let [DMList, setDMList] = useState([])
     let emojis = ['😀', '😃', '😄', '😁,', '😆', '🤩', '😅', '😂', '🤣', '😊', '😇', '🙂', '🙃', '😉', '😌', '😍', '😘', '😗', '😙', '😚', '😋', '🤪', '😜', '😝', '😛', '🤑', '🤗', '🤓', '😎', '🤡', '🤠', '😏', '😒', '😞', '😔', '😟', '😕', '🙁', '😣', '😖', '😫', '😩', '😤', '😠', '😡', '🤬', '😶', '😐', '😑', '😯', '😦', '😧', '😮', '😲', '😵', '🤯', '😳', '😱', '😨', '😰', '😢', '😥', '🤤', '😭', '😓', '😪', '😴', '🥱', '🙄', '🤨', '🧐', '🤔', '🤫', '🤭', '🤥', '😬', '🤐', '🤢', '🤮', '🤧', '😷', '🤒', '🤕', '😈', '👿', '👹', '👺', '💩', '👻', '💀', '👽', '👾', '🤖', '🎃', '😺', '😸', '😹', '😻', '😼', '😽', '🙀', '😿', '😾', '👐', '🙌', '👏', '🙏', '🤲', '🤝', '👍', '👊', '✊', '🤞', '🤘', '👌', '✋', '🖖', '👋', '🤙', '💪', '🤟', '💅', '🖖', '💋', '👄', '👅', '👂', '🦻', '👃', '🦵', '🦶', '🦾', '🦿', '👣', '👁', '👀', '🗣', '👤', '👶', '👦', '👧', '🧒', '👨', '👩', '🧑', '👱‍♀️', '👱', '🧔', '👴', '👵', '🧓', '👲', '👳‍♀️', '👳', '🧕', '👮‍♀️', '👮', '👷‍♀️', '👷', '💂‍♀️', '💂', '🕵️‍♀️', '🕵️', '👩‍⚕️', '👨‍⚕️', '👩‍🌾', '👨‍🌾', '👩‍🍳', '👨‍🍳', '👩‍🎓', '👨‍🎓', '👩‍🎤', '👨‍🎤', '👩‍🏫', '👨‍🏫', '👩‍🏭', '👨‍🏭', '👩‍💻', '👨‍💻', '👩‍💼', '👨‍💼', '👩‍🔧', '👨‍🔧', '👩‍🔬', '👨‍🔬', '👩‍🎨', '👨‍🎨', '👩‍🚒', '👨‍🚒', '👩‍✈️', '👨‍✈️', '👩‍🚀', '👨‍🚀', '👩‍⚖️', '👨‍⚖️', '🤶', '🎅', '👸', '🤴', '👰', '🤵', '👼', '🤱', '🙇‍♀️', '🙇', '💁', '💁‍♂️', '🙅', '🙅‍♂️', '🙆', '🙆‍♂️', '🙋', '🙋‍♂️', '🤷‍♀️', '🤷‍♂️', '🙎', '🙎‍♂️', '🙍', '🙍‍♂️', '💇', '💇‍♂️', '💆', '💆‍♂️', '🧖‍♀️', '🧖‍♂️', '🧏', '🧏‍♂️', '🧏‍♀️', '🧙‍♀️', '🧙‍♂️', '🧛‍♀️', '🧛‍♂️', '🧟‍♀️', '🧟‍♂️', '🧚‍♀️', '🧚‍♂️', '🧜‍♀️', '🧜‍♂️', '🧝‍♀️', '🧝‍♂️', '🧞‍♀️', '🧞‍♂️', '🕴', '💃', '🕺', '🚶‍♀️', '🚶', '🏃‍♀️', '🏃', '🧍', '🧍‍♂️', '🧍‍♀️', '🧎', '🧎‍♂️', '🧎‍♀️', '👨‍🦯', '👩‍🦯', '👨‍🦼', '👩‍🦼', '👨‍🦽', '👩‍🦽', '⛷', '🏂', '🏋️‍♀️', '🏋️', '🤺', '🤼‍♀️', '🤼‍♂️', '🤸‍♀️', '🤸‍♂️', '⛹️‍♀️', '⛹️', '🤾‍♀️', '🤾‍♂️', '🏌️‍♀️', '🏌️', '🏄‍♀️', '🏄', '🏊‍♀️', '🏊', '🤽‍♀️', '🤽‍♂️', '🚣‍♀️', '🚣', '🏇', '🚴‍♀️', '🚴', '🚵‍♀️', '🚵', '🤹‍♀️', '🤹‍♂️', '🧗‍♀️', '🧗‍♂️', '🧘‍♀️', '🧘‍♂️', '🥰', '🥵', '🥶', '🥳', '🥴', '🥺', '🦸', '🦹', '🧑‍🦰', '🧑‍🦱', '🧑‍🦳', '🧑‍🦲', '🧑‍⚕️', '🧑‍🎓', '🧑‍🏫', '🧑‍⚖️', '🧑‍🌾', '🧑‍🍳', '🧑‍🔧', '🧑‍🏭', '🧑‍💼', '🧑‍🔬', '🧑‍💻', '🧑‍🎤', '🧑‍🎨', '🧑‍✈️', '🧑‍🚀', '🧑‍🚒', '🧑‍🦯', '🧑‍🦼', '🧑‍🦽']
-
-    var objDiv = document.getElementById("messagebox");
-    if (objDiv) {
-        objDiv.scrollTop = objDiv.scrollHeight
-    }
 
     useEffect(() => {
         setDMList(doDMList(messages, props.username))
@@ -78,7 +88,7 @@ function Chat(props) {
                 <div>
                     <Header update={props.update} menu={showMenu} togglemenu={setShowMenu}/>
                     <div className="bg-gray-900 h-screen border-r-2 border-gray-700 overflow-y-scroll">
-                        <Menu channel={channel} setChannel={setChannel} globalList={globalList} DMList={DMList} setDMList={setDMList} emojis={emojis} showMenu={showMenu}/>
+                        <Menu channel={channel} setChannel={setChannel} globalList={globalList} DMList={DMList} setDMList={setDMList} emojis={emojis} showMenu={showMenu} setShowMenu={setShowMenu} username={props.username} isMobile={isMobile}/>
                     </div>
                     <Footer/>
                 </div>
@@ -89,10 +99,10 @@ function Chat(props) {
                     <Header update={props.update} menu={showMenu} togglemenu={setShowMenu}/>
                     <div id="withmenu" className="grid">
                         <div className="bg-gray-900 h-screen border-r-2 border-gray-700 overflow-y-scroll">
-                            <Menu channel={channel} setChannel={setChannel} globalList={globalList} DMList={DMList} setDMList={setDMList} emojis={emojis} showMenu={showMenu}/>
+                            <Menu channel={channel} setChannel={setChannel} globalList={globalList} DMList={DMList} setDMList={setDMList} emojis={emojis} showMenu={showMenu} setShowMenu={setShowMenu} username={props.username} isMobile={isMobile}/>
                         </div>
                         <div className="bg-zinc-900 h-screen border-l-2 border-gray-700">
-                            <Messages channel={channel} emojis={emojis} messages={messages} username={props.username} showMenu={showMenu} messagesRef={messagesRef}/>
+                            <Messages channel={channel} emojis={emojis} messages={messages} username={props.username} showMenu={showMenu} messagesRef={updateMessagesRef}/>
                         </div>
                     </div>
                     <Footer/>
@@ -104,7 +114,7 @@ function Chat(props) {
             <div>
                 <Header update={props.update} menu={showMenu} togglemenu={setShowMenu}/>
                 <div className="bg-zinc-900 h-screen">
-                    <Messages channel={channel} emojis={emojis} messages={messages} username={props.username} showMenu={showMenu} messagesRef={messagesRef}/>
+                    <Messages channel={channel} emojis={emojis} messages={messages} username={props.username} showMenu={showMenu} messagesRef={updateMessagesRef}/>
                 </div>
                 <Footer/>
             </div>

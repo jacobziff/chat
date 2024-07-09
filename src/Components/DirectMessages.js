@@ -1,7 +1,7 @@
 import Channel from "./Channel";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faPlus } from "@fortawesome/free-solid-svg-icons";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 function hash(name, size) {
     let sum = 0
@@ -11,7 +11,7 @@ function hash(name, size) {
     return sum % size
 }
 
-function doAddDM(setAddingDM, DMList, setDMList, setChannel) {
+function doAddDM(setAddingDM, DMList, setDMList, setChannel, username) {
     let name = document.getElementById("userfield").value
     document.getElementById("userfield").value = ""
     let l = name.length
@@ -19,7 +19,7 @@ function doAddDM(setAddingDM, DMList, setDMList, setChannel) {
     if (!(l > 0 && l < 21)) {
         return;
     }
-    if (name[0] === '#') {
+    if (name[0] === '#' || (name === username) || DMList.includes(name)) {
         return;
     } else {
         setDMList([name].concat(DMList))
@@ -30,6 +30,8 @@ function doAddDM(setAddingDM, DMList, setDMList, setChannel) {
 function DirectMessages(props) {
 
     let [addingDM, setAddingDM] = useState(false)
+
+    useEffect(() => {if (addingDM && document.getElementById("userfield")) { document.getElementById("userfield").focus()}}, [addingDM])
 
     if (!props.DMList) {
         return (
@@ -50,18 +52,18 @@ function DirectMessages(props) {
                     <FontAwesomeIcon icon={faPlus} className="text-slate-200" onClick={() => setAddingDM(true)}/>
                 </div>
                 {props.DMList.map((name) =>
-                    <Channel key={name} name={name} channel={props.channel} setChannel={props.setChannel} emoji={props.emojis[hash(name, props.emojis.length)]}/>
+                    <Channel key={name} name={name} channel={props.channel} setChannel={props.setChannel} emoji={props.emojis[hash(name, props.emojis.length)]} setShowMenu={props.setShowMenu} isMobile={props.isMobile}/>
                 )}
-                <div id="coverbackground" className="flex items-center" style={{height: `${window.innerHeight}px`, width: `${window.innerWidth}px`, zIndex: 100, position: "fixed", top: "0", background: "rgba(31, 41, 55, 0.8)"}}>
-                    <div id="dminterface" className="flex flex-col items-center h-fit w-1/4 bg-gray-700 rounded-lg">
+                <div id="coverbackground" className="grid justify-items-center items-center" style={{height: `${window.innerHeight}px`, width: `${window.innerWidth}px`, zIndex: 100, position: "fixed", top: "0", background: "rgba(31, 41, 55, 0.8)"}}>
+                    <div id="dminterface" className="flex flex-col items-center h-fit w-fit bg-gray-700 rounded-lg">
                         <input className="border-gray-700 bg-gray-500 border-2 h-fit w-3/4 text-xl rounded px-2 py-1 my-4 text-slate-100" id="userfield" type="text" placeholder="Username" onKeyDown={(e) => 
                             {if (e.key === 'Enter') {
                                 e.target.blur();
-                                doAddDM(setAddingDM, props.DMList, props.setDMList, props.setChannel);
+                                doAddDM(setAddingDM, props.DMList, props.setDMList, props.setChannel, props.username);
                         }}}></input>
                         <div className="flex flex-row">
                             <button className="bg-zinc-900 py-2 w-20 m-3 rounded text-normal text-slate-200" onClick={() => setAddingDM(false)}>Cancel</button>
-                            <button className="bg-zinc-900 py-2 w-20 m-3 rounded text-normal text-slate-200" onClick={() => doAddDM(setAddingDM, props.DMList, props.setDMList, props.setChannel)}>OK</button>
+                            <button className="bg-zinc-900 py-2 w-20 m-3 rounded text-normal text-slate-200" onClick={() => doAddDM(setAddingDM, props.DMList, props.setDMList, props.setChannel, props.username)}>OK</button>
                         </div>
                     </div>
                 </div>
@@ -75,7 +77,7 @@ function DirectMessages(props) {
                     <FontAwesomeIcon icon={faPlus} className="text-slate-200" onClick={() => setAddingDM(true)}/>
                 </div>
                 {props.DMList.map((name) =>
-                    <Channel key={name} name={name} channel={props.channel} setChannel={props.setChannel} emoji={props.emojis[hash(name, props.emojis.length)]}/>
+                    <Channel key={name} name={name} channel={props.channel} setChannel={props.setChannel} emoji={props.emojis[hash(name, props.emojis.length)]} setShowMenu={props.setShowMenu} isMobile={props.isMobile}/>
                 )}
             </div>
         );

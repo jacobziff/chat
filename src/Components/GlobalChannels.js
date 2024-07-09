@@ -5,7 +5,7 @@ function GlobalChannels(props) {
         <div className="pb-3 pt-6">
             <h2 className="text-slate-200 text-left pl-1 mx-8 my-1 py-1 border-b border-slate-500">Channels</h2>
             {props.globalList.map((name) =>
-                <Channel key={name} name={name} channel={props.channel} setChannel={props.setChannel} emoji="N/A" emojis={["N/A"]}/>
+                <Channel key={name} name={name} channel={props.channel} setChannel={props.setChannel} emoji="N/A" emojis={["N/A"]} setShowMenu={props.setShowMenu} isMobile={props.isMobile}/>
             )}
         </div>
     );

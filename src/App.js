@@ -19,7 +19,7 @@ function App() {
   } else {
     return (
       <div>
-        <div className="bg-gray-800 h-screen flex flex-col items-center">
+        <div className="bg-slate-800 h-screen flex flex-col items-center">
           <Login update={setLoggedIn} setUsername={setUsername}/>
         </div>
         <Footer/>
