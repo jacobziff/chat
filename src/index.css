@@ -27,3 +27,12 @@ code {
 #messagesheadergrid {
   grid-template-columns: 1fr 1fr;
 }
+
+.messagebubble {
+  max-width: 45%;
+}
+
+#dminterface {
+  position: relative;
+  left: 37.5%
+}

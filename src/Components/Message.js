@@ -1,15 +1,24 @@
 function Message(props) {
     let msg = props.message
-    if (!(props.channel === msg.sentTo)) {
+    console.log(msg.sentBy, msg.sentTo, msg.text, props.channel)
+    if (!((props.channel === msg.sentTo && props.username === msg.sentBy) || (props.channel === msg.sentBy && props.username === msg.sentTo))) {
         return (
             <div>
 
             </div>
         );
     }
-    console.log(msg.createdAt.seconds)
+    if (false) {
+        return (
+            <div>
+
+            </div>
+        );
+    }
     let date = new Date(0)
-    date.setUTCSeconds(msg.createdAt.seconds)
+    if (msg.createdAt) {
+        date.setUTCSeconds(msg.createdAt.seconds)
+    }
     let sentBy = ""
     if (props.channel[0] === '#') {
         sentBy = msg.sentBy + " • "

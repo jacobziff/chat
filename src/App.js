@@ -10,7 +10,7 @@ function App() {
   const [loggedIn, setLoggedIn] = useState(false)
   const [username, setUsername] = useState("Test")
 
-  if (!loggedIn) {
+  if (loggedIn) {
     return (
       <div>
         <Chat update={setLoggedIn} username={username}/>
