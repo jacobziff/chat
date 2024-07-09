@@ -11,7 +11,7 @@ function hash(name, size) {
     return sum % size
 }
 
-function doAddDM(setAddingDM, DMList, setDMList, setChannel, username) {
+function doAddDM(setAddingDM, DMList, setDMList, setChannel, username, isMobile, setShowMenu) {
     let name = document.getElementById("userfield").value
     document.getElementById("userfield").value = ""
     let l = name.length
@@ -24,6 +24,9 @@ function doAddDM(setAddingDM, DMList, setDMList, setChannel, username) {
     } else {
         setDMList([name].concat(DMList))
         setChannel(name)
+        if (isMobile) {
+            setShowMenu(false)
+        }
     }
 }
 
@@ -59,11 +62,11 @@ function DirectMessages(props) {
                         <input className="border-gray-700 bg-gray-500 border-2 h-fit w-3/4 text-xl rounded px-2 py-1 my-4 text-slate-100" id="userfield" type="text" placeholder="Username" onKeyDown={(e) => 
                             {if (e.key === 'Enter') {
                                 e.target.blur();
-                                doAddDM(setAddingDM, props.DMList, props.setDMList, props.setChannel, props.username);
+                                doAddDM(setAddingDM, props.DMList, props.setDMList, props.setChannel, props.username, props.isMobile, props.setShowMenu);
                         }}}></input>
                         <div className="flex flex-row">
                             <button className="bg-zinc-900 py-2 w-20 m-3 rounded text-normal text-slate-200" onClick={() => setAddingDM(false)}>Cancel</button>
-                            <button className="bg-zinc-900 py-2 w-20 m-3 rounded text-normal text-slate-200" onClick={() => doAddDM(setAddingDM, props.DMList, props.setDMList, props.setChannel, props.username)}>OK</button>
+                            <button className="bg-zinc-900 py-2 w-20 m-3 rounded text-normal text-slate-200" onClick={() => doAddDM(setAddingDM, props.DMList, props.setDMList, props.setChannel, props.username, props.isMobile, props.setShowMenu)}>OK</button>
                         </div>
                     </div>
                 </div>
